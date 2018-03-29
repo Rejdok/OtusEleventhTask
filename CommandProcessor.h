@@ -122,8 +122,8 @@ private:
 class CommandsProcessor {
 public:
 	CommandsProcessor() = default;
-	CommandsProcessor(size_t countsOfThreads,size_t countOfCommandsInBlock,std::shared_ptr<std::mutex> coutMutex,async::handle_t handle):
-		countOfCommandsInBlock(countOfCommandsInBlock),coutMutex(coutMutex), handle(handle){
+	CommandsProcessor(size_t countsOfThreads,size_t countOfCommandsInBlock,std::shared_ptr<std::mutex> coutMutex):
+		countOfCommandsInBlock(countOfCommandsInBlock),coutMutex(coutMutex), handle(reinterpret_cast<void*>(this)){
 		processCommandsThread = std::thread( &CommandsProcessor::processCommands, this );
 		commandsQueue = std::make_shared<CommandQueueT>();
 		queueMutex = std::make_shared<QueueMutexT>();

@@ -1,3 +1,4 @@
+
 #include "CommandProcessor.h"
 
 #include <map>
@@ -16,28 +17,27 @@ namespace async{
 		}
 		handle_t registerNewHandler(std::size_t bulk) {
 			size_t countOfOutputThreads = 2;
-			registredHandles.emplace(std::piecewise_construct,std::forward_as_tuple(handlersCounter),
-				std::forward_as_tuple(countOfOutputThreads, bulk,coutMutex,handlersCounter));
-			handlersCounter++;
-			return handlersCounter - 1;
+			CommandsProcessor* p= new CommandsProcessor(countOfOutputThreads, bulk, coutMutex);
+			registredHandles.emplace(reinterpret_cast<handle_t>(p),p);
+			return reinterpret_cast<handle_t>(p);
 		}
 		void inputNewCommand(handle_t handle,std::string& rawCommand) {
 			if (registredHandles.find(handle) != registredHandles.end()) {
-				registredHandles[handle].inputNewCommand(rawCommand);
+				registredHandles[handle]->inputNewCommand(rawCommand);
 			}
 		}
 		void disconnectHandler(handle_t handle) {
 			if (registredHandles.find(handle) != registredHandles.end()) {
-				registredHandles[handle].diconnect();
+				registredHandles[handle]->diconnect();
+				delete registredHandles[handle];
 				registredHandles.erase(handle);
 			}
 		}
 	private:
 		size_t maxConnections = maxConnections;
 		std::shared_ptr<std::mutex> coutMutex;
-		std::map<handle_t, CommandsProcessor> registredHandles;
+		std::map<handle_t, CommandsProcessor*> registredHandles;
 		std::map<handle_t, std::queue<std::string>> inputMessagesQueue;
-		handle_t handlersCounter = 0;
 		std::thread queueHandle;
 	};
 	
