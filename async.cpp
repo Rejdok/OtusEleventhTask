@@ -1,4 +1,3 @@
-
 #include "CommandProcessor.h"
 
 #include <map>
@@ -34,6 +33,13 @@ namespace async{
 			}
 		}
 	private:
+		~asyncHandler() {
+			for (auto &i : registredHandles) {
+				registredHandles[i.second]->diconnect();
+				delete registredHandles[i.second];
+				registredHandles.erase(i.first);
+			}
+		}
 		size_t maxConnections = maxConnections;
 		std::shared_ptr<std::mutex> coutMutex;
 		std::map<handle_t, CommandsProcessor*> registredHandles;
