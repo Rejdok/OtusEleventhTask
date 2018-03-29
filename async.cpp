@@ -32,7 +32,6 @@ namespace async{
 				registredHandles.erase(handle);
 			}
 		}
-	private:
 		~asyncHandler() {
 			for (auto &i : registredHandles) {
 				registredHandles[i.second]->diconnect();
@@ -40,6 +39,7 @@ namespace async{
 				registredHandles.erase(i.first);
 			}
 		}
+	private:	
 		size_t maxConnections = maxConnections;
 		std::shared_ptr<std::mutex> coutMutex;
 		std::map<handle_t, CommandsProcessor*> registredHandles;
