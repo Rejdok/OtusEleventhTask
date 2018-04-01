@@ -39,7 +39,7 @@ namespace async{
 				registredHandles.erase(i.first);
 			}
 		}
-	private:	
+	private:
 		size_t maxConnections = maxConnections;
 		std::shared_ptr<std::mutex> coutMutex;
 		std::map<handle_t, CommandsProcessor*> registredHandles;
@@ -54,7 +54,7 @@ namespace async{
 	}
 
 	void receive(handle_t handle, const char *data, std::size_t size) {
-		std::istringstream ss(data);
+		std::istringstream ss(std::string{ data,size });
 		std::string command;
 		while (std::getline(ss, command))
 			OneObjectToRuleThemAll.inputNewCommand(handle, command);
