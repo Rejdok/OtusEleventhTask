@@ -57,7 +57,8 @@ namespace async{
 		std::istringstream ss(std::string{ data,size });
 		std::string command;
 		while (std::getline(ss, command))
-			OneObjectToRuleThemAll.inputNewCommand(handle, command);
+			if (command.size()!=0)
+				OneObjectToRuleThemAll.inputNewCommand(handle, command);
 	}
 
 	void receive(handle_t handle, std::string &command) {
