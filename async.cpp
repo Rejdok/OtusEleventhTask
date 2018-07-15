@@ -39,11 +39,28 @@ namespace async{
 				registredHandles.erase(i.first);
 			}
 		}
+		void processInput(handle_t handle, const char *data, std::size_t size){
+			std::string inputString(data, size);
+			inputBuf[handle] += inputString;
+			bool allPossibleCommandsProcessed = false;
+			while (!allPossibleCommandsProcessed)
+			{
+				allPossibleCommandsProcessed = true;
+				auto endOfCommand = inputBuf[handle].find('\n');
+				if (endOfCommand != std::string::npos) {
+					auto newCommand = std::string(inputBuf[handle], 0, endOfCommand);
+					inputNewCommand(handle, newCommand);
+					inputBuf[handle].erase(0, endOfCommand+1);
+					allPossibleCommandsProcessed = false;
+				}
+			}
+		}
 	private:
 		size_t maxConnections = maxConnections;
 		std::shared_ptr<std::mutex> coutMutex;
 		std::map<handle_t, CommandsProcessor*> registredHandles;
 		std::map<handle_t, std::queue<std::string>> inputMessagesQueue;
+		std::map<handle_t, std::string> inputBuf;
 		std::thread queueHandle;
 	};
 	
@@ -54,11 +71,7 @@ namespace async{
 	}
 
 	void receive(handle_t handle, const char *data, std::size_t size) {
-		std::istringstream ss(std::string{ data,size });
-		std::string command;
-		while (std::getline(ss, command))
-			if (command.size()!=0)
-				OneObjectToRuleThemAll.inputNewCommand(handle, command);
+		OneObjectToRuleThemAll.processInput(handle,data,size);
 	}
 
 	void receive(handle_t handle, std::string &command) {
